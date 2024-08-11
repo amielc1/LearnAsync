@@ -2,11 +2,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 class Program
 {
-    static void Main()
+    static async Task Main()
     {
         string inputFilePath = "input.txt";
         string outputFilePath = "output.txt";
@@ -26,9 +27,11 @@ class Program
 
             // Step 1: Read and process chunks
             stopwatch.Start();
+            Console.WriteLine($"Read from file {inputFilePath}, chunk of {chunkSizeInBytes} bytes ");
             foreach (var chunk in fileChunkReader.ReadChunks(inputFilePath, chunkSizeInBytes))
             {
                 string tempFilePath = chunkProcessor.ProcessChunk(chunk);
+                Console.WriteLine($"Read Chunk with {chunk.Count} lines into file {tempFilePath}");
                 tempFiles.Add(tempFilePath);
             }
             stopwatch.Stop();
@@ -36,7 +39,7 @@ class Program
 
             // Step 2: Merge sorted chunks
             stopwatch.Restart();
-            sortedChunkMerger.MergeSortedChunks(tempFiles, outputFilePath);
+            await sortedChunkMerger.MergeSortedChunksAsync(tempFiles, outputFilePath);
             stopwatch.Stop();
             performanceMonitor.LogPerformance("Merging Chunks", stopwatch.Elapsed);
 

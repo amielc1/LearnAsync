@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LearnAsync
+﻿namespace LearnAsync
 {
     public class PerformanceMonitor
     {
@@ -15,6 +9,8 @@ namespace LearnAsync
 
         public bool ValidateOutput(string outputPath)
         {
+            int counter = 0;
+            Console.WriteLine($"ValidateOutput file {outputPath}");
             HashSet<string> lines = new HashSet<string>();
 
             using (StreamReader reader = new StreamReader(outputPath))
@@ -24,6 +20,7 @@ namespace LearnAsync
                 {
                     if (lines.Contains(line))
                     {
+                        Console.WriteLine($"ValidateOutput {++counter}: line {line} already exist in the {outputPath}");
                         return false;
                     }
                     lines.Add(line);
