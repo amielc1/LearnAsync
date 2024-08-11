@@ -1,0 +1,19 @@
+﻿graph TD
+    A[Start] --> B[Read Chunks from input.txt]
+    B --> C[Parallel Chunk Processing]
+    C --> D[Process Chunk: Deduplicate and Sort]
+    D --> E[Write to Temporary Files]
+    E --> F[Merge Temporary Files in Parallel]
+    F --> G[Final Merge of Partial Outputs]
+    G --> H[Write Final Output to output.txt]
+    H --> I[Delete Temporary Files]
+    I --> J[End]
+
+    subgraph Chunk Processing
+        C --> D
+        D --> E
+    end
+
+    subgraph Merging Process
+        F --> G
+    end
