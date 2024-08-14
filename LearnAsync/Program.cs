@@ -39,7 +39,7 @@ class Program
 
             // Step 2: Merge sorted chunks
             stopwatch.Restart();
-            await sortedChunkMerger.MergeSortedChunksAsync(tempFiles, outputFilePath);
+            await sortedChunkMerger.MergeChunksAsync(tempFiles, outputFilePath);
             stopwatch.Stop();
             performanceMonitor.LogPerformance("Merging Chunks", stopwatch.Elapsed);
 

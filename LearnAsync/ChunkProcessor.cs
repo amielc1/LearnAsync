@@ -5,20 +5,18 @@
         public string ProcessChunk(List<string> chunk)
         {
             HashSet<string> uniqueLines = new HashSet<string>(chunk);
-            List<string> sortedLines = uniqueLines.ToList();
-            sortedLines.Sort();
 
             string tempFilePath = Path.GetTempFileName();
-            WriteTempFile(sortedLines, tempFilePath);
+            WriteTempFile(uniqueLines, tempFilePath);
 
             return tempFilePath;
         }
 
-        private void WriteTempFile(List<string> sortedLines, string tempFilePath)
+        private void WriteTempFile(HashSet<string> lines, string tempFilePath)
         {
             using (StreamWriter writer = new StreamWriter(tempFilePath))
             {
-                foreach (var line in sortedLines)
+                foreach (var line in lines)
                 {
                     writer.WriteLine(line);
                 }
