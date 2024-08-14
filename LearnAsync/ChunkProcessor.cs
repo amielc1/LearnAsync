@@ -2,25 +2,19 @@
 {
     public class ChunkProcessor
     {
-        public string ProcessChunk(List<string> chunk)
+        public async Task<string> ProcessChunkAsync(List<string> chunk)
         {
-            HashSet<string> uniqueLines = new HashSet<string>(chunk);
-
             string tempFilePath = Path.GetTempFileName();
-            WriteTempFile(uniqueLines, tempFilePath);
 
-            return tempFilePath;
-        }
-
-        private void WriteTempFile(HashSet<string> lines, string tempFilePath)
-        {
             using (StreamWriter writer = new StreamWriter(tempFilePath))
             {
-                foreach (var line in lines)
+                foreach (var line in chunk)
                 {
-                    writer.WriteLine(line);
+                    await writer.WriteLineAsync(line);
                 }
             }
+
+            return tempFilePath;
         }
     }
 }

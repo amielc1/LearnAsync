@@ -30,7 +30,7 @@ class Program
             Console.WriteLine($"Read from file {inputFilePath}, chunk of {chunkSizeInBytes} bytes ");
             foreach (var chunk in fileChunkReader.ReadChunks(inputFilePath, chunkSizeInBytes))
             {
-                string tempFilePath = chunkProcessor.ProcessChunk(chunk);
+                string tempFilePath = await chunkProcessor.ProcessChunkAsync(chunk);
                 Console.WriteLine($"Read Chunk with {chunk.Count} lines into file {tempFilePath}");
                 tempFiles.Add(tempFilePath);
             }
