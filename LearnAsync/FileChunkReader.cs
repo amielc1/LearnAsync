@@ -2,7 +2,7 @@
 {
     public class FileChunkReader
     {
-        public IEnumerable<List<string>> ReadChunks(string filePath, int chunkSizeInBytes)
+        public async IAsyncEnumerable<List<string>> ReadChunksAsync(string filePath, int chunkSizeInBytes)
         {
             List<string> chunk = new List<string>();
             int currentSize = 0;
@@ -10,7 +10,7 @@
             using (StreamReader reader = new StreamReader(filePath))
             {
                 string line;
-                while ((line = reader.ReadLine()) != null)
+                while ((line = await reader.ReadLineAsync()) != null)
                 {
                     chunk.Add(line);
                     currentSize += System.Text.Encoding.UTF8.GetByteCount(line);
@@ -28,7 +28,6 @@
                     yield return chunk;
                 }
             }
-        } 
+        }
     }
-
 }

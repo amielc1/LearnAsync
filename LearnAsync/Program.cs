@@ -28,7 +28,7 @@ class Program
             // Step 1: Read and process chunks
             stopwatch.Start();
             Console.WriteLine($"Read from file {inputFilePath}, chunk of {chunkSizeInBytes} bytes ");
-            foreach (var chunk in fileChunkReader.ReadChunks(inputFilePath, chunkSizeInBytes))
+            await foreach (var chunk in fileChunkReader.ReadChunksAsync(inputFilePath, chunkSizeInBytes))
             {
                 string tempFilePath = await chunkProcessor.ProcessChunkAsync(chunk);
                 Console.WriteLine($"Read Chunk with {chunk.Count} lines into file {tempFilePath}");
