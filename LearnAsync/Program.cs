@@ -16,18 +16,23 @@ class Program
         FileChunkReader fileChunkReader = new FileChunkReader();
         ChunkProcessor chunkProcessor = new ChunkProcessor();
         SortedChunkMerger sortedChunkMerger = new SortedChunkMerger();
-        ResourceManager resourceManager = new ResourceManager(); 
+        ResourceManager resourceManager = new ResourceManager();
         PerformanceMonitor performanceMonitor = new PerformanceMonitor();
 
         List<string> tempFiles = new List<string>();
-
+        string tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), nameof(tempDirectory));
         try
         {
             Stopwatch stopwatch = new Stopwatch();
 
             // Step 1: Read and process chunks
             stopwatch.Start();
-            Console.WriteLine($"Read from file {inputFilePath}, chunk of {chunkSizeInBytes} bytes ");
+           
+            await fileChunkReader.GroupLinesByFirstCharacterAsync(inputFilePath, tempDirectory);
+            stopwatch.Stop();
+            performanceMonitor.LogPerformance("Read to  Key filestook", stopwatch.Elapsed);
+            Console.ReadLine();
+            stopwatch.Start();
             await foreach (var chunk in fileChunkReader.ReadChunksAsync(inputFilePath, chunkSizeInBytes))
             {
                 string tempFilePath = await chunkProcessor.ProcessChunkAsync(chunk);
@@ -61,6 +66,6 @@ class Program
             }
         }
 
-        Console.Read(); 
+        Console.Read();
     }
 }
