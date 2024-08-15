@@ -30,23 +30,22 @@ class Program
            
             await fileChunkReader.GroupLinesByFirstCharacterAsync(inputFilePath, tempDirectory);
             stopwatch.Stop();
-            performanceMonitor.LogPerformance("Read to  Key filestook", stopwatch.Elapsed);
-            Console.ReadLine();
+            performanceMonitor.LogPerformance("Read to Key files took", stopwatch.Elapsed);
+          
             stopwatch.Start();
-            await foreach (var chunk in fileChunkReader.ReadChunksAsync(inputFilePath, chunkSizeInBytes))
+
+            foreach (string tempFilePath in Directory.GetFiles(tempDirectory))
             {
-                string tempFilePath = await chunkProcessor.ProcessChunkAsync(chunk);
-                Console.WriteLine($"Read Chunk with {chunk.Count} lines into file {tempFilePath}");
-                tempFiles.Add(tempFilePath);
+                // read each file 
+                await foreach (var chunk in fileChunkReader.ReadChunksAsync(tempFilePath, chunkSizeInBytes))
+                {
+                    await chunkProcessor.ProcessChunkAsync(chunk, outputFilePath);
+                    Console.WriteLine($"write Chunk with {chunk.Count} lines into file {outputFilePath}");
+                }
             }
+
             stopwatch.Stop();
             performanceMonitor.LogPerformance("Chunk Processing", stopwatch.Elapsed);
-
-            // Step 2: Merge sorted chunks
-            stopwatch.Restart();
-            await sortedChunkMerger.MergeChunksAsync(tempFiles, outputFilePath);
-            stopwatch.Stop();
-            performanceMonitor.LogPerformance("Merging Chunks", stopwatch.Elapsed);
 
             // Step 3: Validate output
             bool isValid = performanceMonitor.ValidateOutput(outputFilePath);
