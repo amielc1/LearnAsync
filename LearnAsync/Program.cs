@@ -34,15 +34,22 @@ class Program
           
             stopwatch.Start();
 
+            var tasks = new List<Task>();
+
             foreach (string tempFilePath in Directory.GetFiles(tempDirectory))
-            {
-                // read each file 
-                await foreach (var chunk in fileChunkReader.ReadChunksAsync(tempFilePath, chunkSizeInBytes))
+            { 
+                tasks.Add(Task.Run(async () =>
                 {
-                    await chunkProcessor.ProcessChunkAsync(chunk, outputFilePath);
-                    Console.WriteLine($"write Chunk with {chunk.Count} lines into file {outputFilePath}");
-                }
+                    await foreach (var chunk in fileChunkReader.ReadChunksAsync(tempFilePath, chunkSizeInBytes))
+                    {
+                        await chunkProcessor.ProcessChunkAsync(chunk, outputFilePath);
+                        Console.WriteLine($"Processed chunk with {chunk.Count} lines from file {tempFilePath}");
+                    }
+                }));
+                 
             }
+
+            await Task.WhenAll(tasks);
 
             stopwatch.Stop();
             performanceMonitor.LogPerformance("Chunk Processing", stopwatch.Elapsed);

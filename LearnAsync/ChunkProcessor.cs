@@ -2,16 +2,26 @@
 {
     public class ChunkProcessor
     {
-        public async Task ProcessChunkAsync(List<string> chunk, string outputfile)
-        {
-            var uniqlines = new HashSet<string>(chunk);
+        SemaphoreSlim semaphore = new SemaphoreSlim(1, 1); // Semaphore to control access to the output file
 
-            using (StreamWriter writer = new StreamWriter(outputfile))
+        public async Task ProcessChunkAsync(List<string> chunk, string outputFilePath)
+        {
+            var uniqueLines = new HashSet<string>(chunk);
+
+            await semaphore.WaitAsync(); // Await the semaphore before accessing the output file
+            try
             {
-                foreach (var line in uniqlines)
+                using (StreamWriter writer = new StreamWriter(outputFilePath, append: true))
                 {
-                    await writer.WriteLineAsync(line);
+                    foreach (var line in uniqueLines)
+                    {
+                        await writer.WriteLineAsync(line);
+                    }
                 }
+            }
+            finally
+            {
+                semaphore.Release(); 
             }
         }
     }
