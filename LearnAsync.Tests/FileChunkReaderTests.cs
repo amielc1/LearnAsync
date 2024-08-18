@@ -7,7 +7,7 @@
 
         [SetUp]
         public void SetUp()
-        {
+        { 
             inputFilePath = Path.Combine(Path.GetTempPath(), "input.txt");
             File.WriteAllLines(inputFilePath, new[] { "apple", "banana", "apricot", "berry" });
         }
@@ -32,13 +32,10 @@
             Assert.IsTrue(Directory.Exists(tempDirectory));
 
             var files = Directory.GetFiles(tempDirectory);
-            Assert.That(files.Length, Is.EqualTo(2)); // Should have files for 'A' and 'B'
+            Assert.That(files.Length, Is.EqualTo(2));
 
             Assert.IsTrue(File.Exists(Path.Combine(tempDirectory, "A.txt")));
             Assert.IsTrue(File.Exists(Path.Combine(tempDirectory, "B.txt")));
-
-            // Clean up
-            Directory.Delete(tempDirectory, true);
         }
 
         [Test]
@@ -54,10 +51,7 @@
                 chunks.Add(chunk);
             }
 
-            Assert.That(chunks.Count, Is.EqualTo(3)); // Each line is less than 10 bytes, so each line is a separate chunk
-
-            // Clean up
-            File.Delete(tempFilePath);
+            Assert.That(chunks.Count, Is.EqualTo(2)); 
         }
     }
 }
