@@ -1,9 +1,5 @@
 ﻿using LearnAsync;
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 
 class Program
 {
@@ -15,8 +11,6 @@ class Program
 
         FileChunkReader fileChunkReader = new FileChunkReader();
         ChunkProcessor chunkProcessor = new ChunkProcessor();
-        SortedChunkMerger sortedChunkMerger = new SortedChunkMerger();
-        ResourceManager resourceManager = new ResourceManager();
         PerformanceMonitor performanceMonitor = new PerformanceMonitor();
 
         List<string> tempFiles = new List<string>();
@@ -25,28 +19,28 @@ class Program
         {
             Stopwatch stopwatch = new Stopwatch();
 
-            // Step 1: Read and process chunks
+            // Step 1: Read file into files by First Character
             stopwatch.Start();
-           
             await fileChunkReader.GroupLinesByFirstCharacterAsync(inputFilePath, tempDirectory);
             stopwatch.Stop();
             performanceMonitor.LogPerformance("Read to Key files took", stopwatch.Elapsed);
-          
+
             stopwatch.Start();
 
             var tasks = new List<Task>();
 
             foreach (string tempFilePath in Directory.GetFiles(tempDirectory))
-            { 
+            {
                 tasks.Add(Task.Run(async () =>
                 {
+                    // Step 2: Read chunks from temp files   
                     await foreach (var chunk in fileChunkReader.ReadChunksAsync(tempFilePath, chunkSizeInBytes))
                     {
+                        // Step 2: write uniq chunks into output file   
                         await chunkProcessor.ProcessChunkAsync(chunk, outputFilePath);
                         Console.WriteLine($"Processed chunk with {chunk.Count} lines from file {tempFilePath}");
                     }
                 }));
-                 
             }
 
             await Task.WhenAll(tasks);
@@ -54,10 +48,9 @@ class Program
             stopwatch.Stop();
             performanceMonitor.LogPerformance("Chunk Processing", stopwatch.Elapsed);
 
-            // Step 3: Validate output
+            // Step 4: Validate output
             bool isValid = performanceMonitor.ValidateOutput(outputFilePath);
             Console.WriteLine($"Output validation result: {isValid}");
-
         }
         catch (Exception ex)
         {
@@ -65,11 +58,8 @@ class Program
         }
         finally
         {
-            // Clean up temporary files
-            foreach (var tempFile in tempFiles)
-            {
-                //resourceManager.DeleteTempFile(tempFile);
-            }
+            Console.WriteLine($"Delete directory : {tempDirectory}");
+            Directory.Delete(tempDirectory, true);
         }
 
         Console.Read();

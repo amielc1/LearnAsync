@@ -1,28 +1,27 @@
-﻿namespace LearnAsync
+﻿namespace LearnAsync;
+
+public class ChunkProcessor
 {
-    public class ChunkProcessor
+    SemaphoreSlim semaphore = new SemaphoreSlim(1, 1); // Semaphore to control access to the output file
+
+    public async Task ProcessChunkAsync(List<string> chunk, string outputFilePath)
     {
-        SemaphoreSlim semaphore = new SemaphoreSlim(1, 1); // Semaphore to control access to the output file
+        var uniqueLines = new HashSet<string>(chunk);
 
-        public async Task ProcessChunkAsync(List<string> chunk, string outputFilePath)
+        await semaphore.WaitAsync(); // Await the semaphore before accessing the output file
+        try
         {
-            var uniqueLines = new HashSet<string>(chunk);
-
-            await semaphore.WaitAsync(); // Await the semaphore before accessing the output file
-            try
+            using (StreamWriter writer = new StreamWriter(outputFilePath, append: true))
             {
-                using (StreamWriter writer = new StreamWriter(outputFilePath, append: true))
+                foreach (var line in uniqueLines)
                 {
-                    foreach (var line in uniqueLines)
-                    {
-                        await writer.WriteLineAsync(line);
-                    }
+                    await writer.WriteLineAsync(line);
                 }
             }
-            finally
-            {
-                semaphore.Release(); 
-            }
+        }
+        finally
+        {
+            semaphore.Release(); 
         }
     }
 }
