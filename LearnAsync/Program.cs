@@ -58,10 +58,18 @@ class Program
         }
         finally
         {
-            Console.WriteLine($"Delete directory : {tempDirectory}");
-            Directory.Delete(tempDirectory, true);
+            CleanUp(tempDirectory);
         }
 
         Console.Read();
+    }
+
+    private static void CleanUp(string tempDirectory)
+    {
+        if (Directory.Exists(tempDirectory))
+        {
+            Console.WriteLine($"Deleting directory: {tempDirectory}");
+            Directory.Delete(tempDirectory, true);
+        }
     }
 }
