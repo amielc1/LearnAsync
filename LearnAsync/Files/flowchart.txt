@@ -1,10 +1,17 @@
 ﻿flowchart TD
-    A[Start Program] --> B[Initialize Resources]
+    A[Start] --> B[Initialize Variables]
     B --> C[Group Lines by First Character]
-    C --> D[Process File Chunks Concurrently]
-    D --> E[Validate Output]
-    E --> F[Clean Up Temporary Files]
-    F --> G[End Program]
+    C --> D[Process Each Temporary File]
+    D --> E[Process Chunks from Temp Files]
+    E --> F[Write Unique Lines to Output File]
+    F --> G[Validate Output File]
+    G --> H{Is Output Valid?}
+    H -- Yes --> I[Log Success]
+    H -- No --> J[Log Validation Error]
+    I --> K[Clean Up Temporary Files]
+    J --> K[Clean Up Temporary Files]
+    K --> L[End]
+
 
 
     #https://mermaid.live/
