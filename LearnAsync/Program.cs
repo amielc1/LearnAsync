@@ -7,9 +7,9 @@ class Program
     {
         string inputFilePath = "input.txt";
         string outputFilePath = "output.txt";
-        int chunkSizeInBytes = 10 * 1024 * 1024; // 10MB
+        int numBuckets = 100; 
 
-        FileChunkReader fileChunkReader = new FileChunkReader();
+        FileReader fileReader = new FileReader();
         ChunkProcessor chunkProcessor = new ChunkProcessor();
         PerformanceMonitor performanceMonitor = new PerformanceMonitor();
 
@@ -19,27 +19,24 @@ class Program
         {
             Stopwatch stopwatch = new Stopwatch();
 
-            // Step 1: Read file into files by First Character
+            // Step 1: Read file into files by hash
             stopwatch.Start();
-            await fileChunkReader.GroupLinesByFirstCharacterAsync(inputFilePath, tempDirectory);
+            await fileReader.GroupLinesByHashAsync(inputFilePath, tempDirectory, numBuckets);
             stopwatch.Stop();
             performanceMonitor.LogPerformance("Read to Key files took", stopwatch.Elapsed);
 
-            stopwatch.Start();
-
+            stopwatch.Start(); 
             var tasks = new List<Task>();
 
             foreach (string tempFilePath in Directory.GetFiles(tempDirectory))
             {
                 tasks.Add(Task.Run(async () =>
                 {
-                    // Step 2: Read chunks from temp files   
-                    await foreach (var chunk in fileChunkReader.ReadChunksAsync(tempFilePath, chunkSizeInBytes))
-                    {
-                        // Step 2: write uniq chunks into output file   
-                        await chunkProcessor.ProcessChunkAsync(chunk, outputFilePath);
-                        Console.WriteLine($"Processed chunk with {chunk.Count} lines from file {tempFilePath}");
-                    }
+                    // Step 2: Read temp files   
+                    var lines = await fileReader.ReadFileAsync(tempFilePath); 
+                    // Step 2: write uniq lines into output file   
+                    await chunkProcessor.ProcessChunkAsync(lines, outputFilePath);
+                    //Console.WriteLine($"Processed {lines.Count} lines from file {tempFilePath}");
                 }));
             }
 

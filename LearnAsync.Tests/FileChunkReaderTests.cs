@@ -25,9 +25,9 @@
         public async Task GroupLinesByFirstCharacterAsync_CreatesTempFilesByCharacter()
         {
             var tempDirectory = Path.Combine(Path.GetTempPath(), "tempDir");
-            var fileChunkReader = new FileChunkReader();
+            var fileChunkReader = new FileReader();
 
-            await fileChunkReader.GroupLinesByFirstCharacterAsync(inputFilePath, tempDirectory);
+            await fileChunkReader.GroupLinesByHashAsync(inputFilePath, tempDirectory,10);
 
             Assert.IsTrue(Directory.Exists(tempDirectory));
 
@@ -38,20 +38,5 @@
             Assert.IsTrue(File.Exists(Path.Combine(tempDirectory, "B.txt")));
         }
 
-        [Test]
-        public async Task ReadChunksAsync_ReturnsChunksOfLines()
-        {
-            var fileChunkReader = new FileChunkReader();
-            var tempFilePath = Path.Combine(Path.GetTempPath(), "testFile.txt");
-            await File.WriteAllLinesAsync(tempFilePath, new[] { "line1", "line2", "line3" });
-
-            var chunks = new List<List<string>>();
-            await foreach (var chunk in fileChunkReader.ReadChunksAsync(tempFilePath, 10))
-            {
-                chunks.Add(chunk);
-            }
-
-            Assert.That(chunks.Count, Is.EqualTo(2)); 
-        }
     }
 }
