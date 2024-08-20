@@ -1,4 +1,5 @@
 ﻿using LearnAsync;
+using LearnAsync.HashAlgorithm;
 using System.Diagnostics;
 
 class Program
@@ -7,9 +8,10 @@ class Program
     {
         string inputFilePath = "input.txt";
         string outputFilePath = "output.txt";
-        int numBuckets = 100; 
+        int numBuckets = 100;
 
-        FileReader fileReader = new FileReader();
+        IHashAlgorithm murmurHashAlgorithm = new MurmurHashAlgorithm();
+        FileReader fileReader = new FileReader(murmurHashAlgorithm);
         ChunkProcessor chunkProcessor = new ChunkProcessor();
         PerformanceMonitor performanceMonitor = new PerformanceMonitor();
 
