@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace LearnAsync
+namespace LearnAsync.Generators
 {
     internal class InputFileGenerator
     {
@@ -18,8 +18,7 @@ namespace LearnAsync
                 for (int i = 0; i < totalLines; i++)
                 {
                     await writer.WriteLineAsync(GenerateRandomString(random, maxLength));
-
-                    // Optionally, print progress to the console
+                     
                     if (i % 1_000 == 0)
                     {
                         await Console.Out.WriteLineAsync($"{i} lines written...");
@@ -27,7 +26,7 @@ namespace LearnAsync
                 }
             }
 
-            Console.WriteLine("File generation completed.");
+            await Console.Out.WriteLineAsync("File generation completed.");
         }
 
         private string GenerateRandomString(Random random, int maxLength)

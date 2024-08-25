@@ -1,78 +1,86 @@
 ﻿using LearnAsync.HashAlgorithm;
 
-namespace LearnAsync
+public class FileReader
 {
-    public class FileReader
+    private readonly IHashAlgorithm _hashAlgorithm;
+
+    public FileReader(IHashAlgorithm hashAlgorithm)
     {
-        private readonly IHashAlgorithm _hashAlgorithm;
+        _hashAlgorithm = hashAlgorithm;
+    }
 
-        public FileReader(IHashAlgorithm hashAlgorithm)
+    public async Task GroupLinesByHashAsync(string inputFilePath, string tempDirectory, int numBuckets)
+    {
+        await Console.Out.WriteLineAsync("Grouping lines by hash...");
+        EnsureDirectoryExists(tempDirectory);
+
+        var tempWriters = CreateTempWriters(tempDirectory, numBuckets);
+        await WriteLinesToBuckets(inputFilePath, tempWriters, numBuckets);
+
+        CloseWriters(tempWriters);
+    }
+
+    public async Task<List<string>> ReadFileAsync(string filePath)
+    {
+        var lines = new List<string>();
+
+        using (StreamReader reader = new StreamReader(filePath))
         {
-            _hashAlgorithm = hashAlgorithm;
-        }
-
-        public async Task GroupLinesByHashAsync(string inputFilePath, string tempDirectory, int numBuckets)
-        {
-            Console.WriteLine("GroupLinesByHashAsync Start");
-            if (!Directory.Exists(tempDirectory))
+            string line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                Directory.CreateDirectory(tempDirectory);
-            }
-
-            await Console.Out.WriteLineAsync($"Read from file {inputFilePath}, into temporaty files in {tempDirectory}");
-            await Console.Out.WriteLineAsync($"Divide input file into [{numBuckets}] buckets");
-            StreamWriter[] tempWriters = new StreamWriter[numBuckets];
-
-            try
-            {
-                for (int i = 0; i < numBuckets; i++)
-                {
-                    tempWriters[i] = new StreamWriter(Path.Combine(tempDirectory, $"bucket_{i}.txt"));
-                }
-                using (StreamReader reader = new StreamReader(inputFilePath))
-                {
-                    int cycleCounter = 0;
-                    string line;
-                    while ((line = await reader.ReadLineAsync()) != null)
-                    {
-                        int bucket = Math.Abs(_hashAlgorithm.ComputeHash(line)) % numBuckets;
-                        await tempWriters[bucket].WriteLineAsync(line);
-                        Interlocked.Increment(ref cycleCounter);
-                        if (cycleCounter % 100000 == 0)
-                        {
-                            await Console.Out.WriteLineAsync($"{DateTime.Now.ToLongTimeString()} [{bucket}] write into bucket (*100k)");
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                foreach (var writer in tempWriters)
-                {
-                    await writer.FlushAsync();
-                    writer.Dispose();
-                }
+                lines.Add(line);
             }
         }
 
-        public async Task<List<string>> ReadFileAsync(string filePath)
-        {
-            var lines = new List<string>();
+        return lines;
+    }
 
-            using (StreamReader reader = new StreamReader(filePath))
+    private void EnsureDirectoryExists(string directory)
+    {
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+    }
+
+    private StreamWriter[] CreateTempWriters(string tempDirectory, int numBuckets)
+    {
+        var tempWriters = new StreamWriter[numBuckets];
+        for (int i = 0; i < numBuckets; i++)
+        {
+            tempWriters[i] = new StreamWriter(Path.Combine(tempDirectory, $"bucket_{i}.txt"));
+        }
+
+        return tempWriters;
+    }
+
+    private async Task WriteLinesToBuckets(string inputFilePath, StreamWriter[] tempWriters, int numBuckets)
+    {
+        using (StreamReader reader = new StreamReader(inputFilePath))
+        {
+            int cycleCounter = 0;
+            string line;
+
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                string line;
-                while ((line = await reader.ReadLineAsync()) != null)
+                int bucket = Math.Abs(_hashAlgorithm.ComputeHash(line)) % numBuckets;
+                await tempWriters[bucket].WriteLineAsync(line);
+
+                if (++cycleCounter % 100000 == 0)
                 {
-                    lines.Add(line);
+                    await Console.Out.WriteLineAsync($"{DateTime.Now:HH:mm:ss} - Processed {cycleCounter} lines.");
                 }
             }
+        }
+    }
 
-            return lines;
+    private void CloseWriters(StreamWriter[] writers)
+    {
+        foreach (var writer in writers)
+        {
+            writer.Flush();
+            writer.Dispose();
         }
     }
 }

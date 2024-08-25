@@ -2,15 +2,15 @@
 
 public class PerformanceMonitor
 {
-    public void LogPerformance(string stepName, TimeSpan duration)
+    public async Task LogPerformance(string stepName, TimeSpan duration)
     {
-        Console.WriteLine($"{stepName} took {duration.TotalSeconds} seconds.");
+        await Console.Out.WriteLineAsync($"{stepName} took {duration.TotalSeconds} seconds.");
     }
-
+     
     public async Task<bool> ValidateOutput(string outputPath)
     {
         int counter = 0;
-        await Console.Out.WriteLineAsync($"ValidateOutput file {outputPath}");
+        await Console.Out.WriteLineAsync($"Validating output file {outputPath}");
         HashSet<string> lines = new HashSet<string>();
 
         using (StreamReader reader = new StreamReader(outputPath))
@@ -18,15 +18,14 @@ public class PerformanceMonitor
             string line;
             while ((line = await reader.ReadLineAsync()) != null)
             {
-                if (lines.Contains(line))
+                if (!lines.Add(line))
                 {
-                    await Console.Out.WriteLineAsync($"ValidateOutput {++counter}: line {line} already exist in the {outputPath}");
+                    await Console.Out.WriteLineAsync($"Duplicate line found: {line} (occurrence {++counter})");
                     return false;
                 }
-                lines.Add(line);
             }
         }
-        lines.Clear(); 
+        lines.Clear();
         return true;
     }
 }
