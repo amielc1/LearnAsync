@@ -26,6 +26,7 @@ public class PerformanceMonitor
                 lines.Add(line);
             }
         }
+        lines.Clear(); 
         return true;
     }
 }
