@@ -13,13 +13,14 @@ namespace LearnAsync
 
         public async Task GroupLinesByHashAsync(string inputFilePath, string tempDirectory, int numBuckets)
         {
+            Console.WriteLine("GroupLinesByHashAsync Start");
             if (!Directory.Exists(tempDirectory))
             {
                 Directory.CreateDirectory(tempDirectory);
             }
 
-            Console.WriteLine($"Read from file {inputFilePath}, into temporaty files in {tempDirectory}");
-
+            await Console.Out.WriteLineAsync($"Read from file {inputFilePath}, into temporaty files in {tempDirectory}");
+            await Console.Out.WriteLineAsync($"Divide input file into [{numBuckets}] buckets");
             StreamWriter[] tempWriters = new StreamWriter[numBuckets];
 
             try
@@ -30,11 +31,17 @@ namespace LearnAsync
                 }
                 using (StreamReader reader = new StreamReader(inputFilePath))
                 {
+                    int cycleCounter = 0;
                     string line;
                     while ((line = await reader.ReadLineAsync()) != null)
                     {
                         int bucket = Math.Abs(_hashAlgorithm.ComputeHash(line)) % numBuckets;
                         await tempWriters[bucket].WriteLineAsync(line);
+                        Interlocked.Increment(ref cycleCounter);
+                        if (cycleCounter % 100000 == 0)
+                        {
+                            await Console.Out.WriteLineAsync($"{DateTime.Now.ToLongTimeString()} [{bucket}] write into bucket (*100k)");
+                        }
                     }
                 }
             }

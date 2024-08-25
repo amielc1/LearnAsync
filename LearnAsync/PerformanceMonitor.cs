@@ -7,20 +7,20 @@ public class PerformanceMonitor
         Console.WriteLine($"{stepName} took {duration.TotalSeconds} seconds.");
     }
 
-    public bool ValidateOutput(string outputPath)
+    public async Task<bool> ValidateOutput(string outputPath)
     {
         int counter = 0;
-        Console.WriteLine($"ValidateOutput file {outputPath}");
+        await Console.Out.WriteLineAsync($"ValidateOutput file {outputPath}");
         HashSet<string> lines = new HashSet<string>();
 
         using (StreamReader reader = new StreamReader(outputPath))
         {
             string line;
-            while ((line = reader.ReadLine()) != null)
+            while ((line = await reader.ReadLineAsync()) != null)
             {
                 if (lines.Contains(line))
                 {
-                    Console.WriteLine($"ValidateOutput {++counter}: line {line} already exist in the {outputPath}");
+                    await Console.Out.WriteLineAsync($"ValidateOutput {++counter}: line {line} already exist in the {outputPath}");
                     return false;
                 }
                 lines.Add(line);

@@ -5,11 +5,11 @@ namespace LearnAsync
     internal class InputFileGenerator
     {
 
-        public void GenerateFile(string filename = "input.txt")
+        public async Task GenerateFile(string filename = "input.txt")
         {
             string filePath = filename;
-            int totalLines = 100_000; // 100 million lines
-            int maxLength = 10_00; // Maximum of 10,000 characters per line
+            int totalLines = 1000000; // 100 million lines
+            int maxLength = 10000; // Maximum of 10,000 characters per line
 
             Random random = new Random();
 
@@ -17,12 +17,12 @@ namespace LearnAsync
             {
                 for (int i = 0; i < totalLines; i++)
                 {
-                    writer.WriteLine(GenerateRandomString(random, maxLength));
+                    await writer.WriteLineAsync(GenerateRandomString(random, maxLength));
 
                     // Optionally, print progress to the console
                     if (i % 1_000 == 0)
                     {
-                        Console.WriteLine($"{i} lines written...");
+                        await Console.Out.WriteLineAsync($"{i} lines written...");
                     }
                 }
             }
