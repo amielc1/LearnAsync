@@ -1,13 +1,13 @@
 ﻿using LearnAsync.Filters;
 
-public class PerformanceMonitor
+public class FileValidator
 {
     public async Task LogPerformance(string stepName, TimeSpan duration)
     {
         await Console.Out.WriteLineAsync($"{stepName} took {duration.TotalSeconds} seconds.");
     }
     IFilter<string> filter;
-    public PerformanceMonitor()
+    public FileValidator()
     {
         //filter = new BloomFilterAdapter(10000000, 0.01);
         filter = new HashSetAdapter();

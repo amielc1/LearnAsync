@@ -7,11 +7,11 @@ public class FileProcessor
 {
     private readonly FileReader _fileReader;
     private readonly ChunkProcessor _chunkProcessor;
-    private readonly PerformanceMonitor _performanceMonitor;
+    private readonly FileValidator _performanceMonitor;
     private readonly string _tempDirectory;
 
 
-    public FileProcessor(FileReader fileReader, ChunkProcessor chunkProcessor, PerformanceMonitor performanceMonitor,  string tempDirectory)
+    public FileProcessor(FileReader fileReader, ChunkProcessor chunkProcessor, FileValidator performanceMonitor,  string tempDirectory)
     {
         _fileReader = fileReader;
         _chunkProcessor = chunkProcessor;

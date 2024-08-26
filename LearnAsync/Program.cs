@@ -15,11 +15,11 @@ namespace LearnAsync
             FileReader fileReader = new FileReader(murmurHashAlgorithm);
             IFilter<string> bloomFilter = new BloomFilterAdapter(10000000, 0.01);
             ChunkProcessor chunkProcessor = new ChunkProcessor(bloomFilter);
-            PerformanceMonitor performanceMonitor = new PerformanceMonitor();
-            await performanceMonitor.ValidateOutput(outputFilePath);
+            FileValidator fileValidator = new FileValidator();
+            await fileValidator.ValidateOutput(outputFilePath);
             string tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), nameof(tempDirectory));
 
-            FileProcessor fileProcessor = new FileProcessor(fileReader, chunkProcessor, performanceMonitor, tempDirectory);
+            FileProcessor fileProcessor = new FileProcessor(fileReader, chunkProcessor, fileValidator, tempDirectory);
 
             try
             {
