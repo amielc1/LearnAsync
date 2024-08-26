@@ -46,17 +46,18 @@ public class FileReader
 
     private StreamWriter[] CreateTempWriters(string tempDirectory, int numBuckets)
     {
+        Console.WriteLine($"Create {numBuckets} buckets");
         var tempWriters = new StreamWriter[numBuckets];
         for (int i = 0; i < numBuckets; i++)
         {
             tempWriters[i] = new StreamWriter(Path.Combine(tempDirectory, $"bucket_{i}.txt"));
-        }
-
+        } 
         return tempWriters;
     }
 
     private async Task WriteLinesToBuckets(string inputFilePath, StreamWriter[] tempWriters, int numBuckets)
     {
+        await Console.Out.WriteLineAsync($"WriteLinesToBuckets - Read lines from {inputFilePath}");
         using (StreamReader reader = new StreamReader(inputFilePath))
         {
             int cycleCounter = 0;
@@ -67,7 +68,7 @@ public class FileReader
                 int bucket = Math.Abs(_hashAlgorithm.ComputeHash(line)) % numBuckets;
                 await tempWriters[bucket].WriteLineAsync(line);
 
-                if (++cycleCounter % 100000 == 0)
+                if (++cycleCounter % 10000 == 0)
                 {
                     await Console.Out.WriteLineAsync($"{DateTime.Now:HH:mm:ss} - Processed {cycleCounter} lines.");
                 }
@@ -77,6 +78,7 @@ public class FileReader
 
     private void CloseWriters(StreamWriter[] writers)
     {
+        Console.WriteLine("Close all writers");
         foreach (var writer in writers)
         {
             writer.Flush();

@@ -9,8 +9,8 @@ public class FileValidator
     IFilter<string> filter;
     public FileValidator()
     {
-        //filter = new BloomFilterAdapter(10000000, 0.01);
-        filter = new HashSetAdapter();
+        filter = new BloomFilterAdapter(10000000, 0.01);
+        //filter = new HashSetAdapter();
     }
 
     public async Task<bool> ValidateOutput(string outputPath)

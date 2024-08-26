@@ -1,5 +1,6 @@
 ﻿using LearnAsync.Filters;
 using LearnAsync.HashAlgorithm;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LearnAsync
 {
@@ -7,19 +8,24 @@ namespace LearnAsync
     {
         static async Task Main()
         {
+
+            var serviceProvider = new ServiceCollection()
+                .AddSingleton<IHashAlgorithm, MurmurHashAlgorithm>() // Register MurmurHashAlgorithm as IHashAlgorithm
+                .AddSingleton<FileReader>()                          // Register FileReader
+                .AddSingleton<IFilter<string>>(sp => new BloomFilterAdapter(10000000, 0.01)) // Register BloomFilterAdapter as IFilter<string>
+                .AddSingleton<ChunkProcessor>()                      // Register ChunkProcessor
+                .AddSingleton<FileValidator>()                       // Register FileValidator
+                .AddSingleton<FileProcessor>()                       // Register FileProcessor
+                .BuildServiceProvider();
+
             string inputFilePath = "input.txt";
             string outputFilePath = "output.txt";
+            string tmpDirectory = "tempDirectory";
             int numBuckets = 100;
 
-            IHashAlgorithm murmurHashAlgorithm = new MurmurHashAlgorithm();
-            FileReader fileReader = new FileReader(murmurHashAlgorithm);
-            IFilter<string> bloomFilter = new BloomFilterAdapter(10000000, 0.01);
-            ChunkProcessor chunkProcessor = new ChunkProcessor(bloomFilter);
-            FileValidator fileValidator = new FileValidator();
-            await fileValidator.ValidateOutput(outputFilePath);
-            string tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), nameof(tempDirectory));
+            string tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), tmpDirectory);
 
-            FileProcessor fileProcessor = new FileProcessor(fileReader, chunkProcessor, fileValidator, tempDirectory);
+            var fileProcessor = serviceProvider.GetRequiredService<FileProcessor>();
 
             try
             {

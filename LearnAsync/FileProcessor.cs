@@ -1,5 +1,4 @@
-﻿using LearnAsync.Filters;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace LearnAsync;
 
@@ -11,12 +10,12 @@ public class FileProcessor
     private readonly string _tempDirectory;
 
 
-    public FileProcessor(FileReader fileReader, ChunkProcessor chunkProcessor, FileValidator performanceMonitor,  string tempDirectory)
+    public FileProcessor(FileReader fileReader, ChunkProcessor chunkProcessor, FileValidator performanceMonitor)
     {
         _fileReader = fileReader;
         _chunkProcessor = chunkProcessor;
         _performanceMonitor = performanceMonitor;
-        _tempDirectory = tempDirectory;
+        _tempDirectory  = Path.Combine(Directory.GetCurrentDirectory(), "tempDirectory");
     }
 
     public async Task ProcessFile(string inputFilePath, string outputFilePath, int numBuckets)
