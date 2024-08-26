@@ -1,42 +1,41 @@
-﻿using BloomFilter;
+﻿using LearnAsync.Filters;
 
-namespace LearnAsync
+namespace LearnAsync;
+
+public class ChunkProcessor
 {
-    public class ChunkProcessor
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+    private readonly IFilter<string> _filter;
+
+    public ChunkProcessor(IFilter<string> filter)
     {
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        private readonly IBloomFilter _bloomFilter;
+        _filter = filter;
+    }
 
-        public ChunkProcessor(int expectedItemCount = 10000000, double falsePositiveRate= 0.01)
-        { 
-            _bloomFilter = FilterBuilder.Build(10000000, 0.01);
-        }
+    public async Task ProcessChunkAsync(List<string> lines, string outputFilePath)
+    {
+        await _semaphore.WaitAsync();
 
-        public async Task ProcessChunkAsync(List<string> lines, string outputFilePath)
+        try
         {
-            await _semaphore.WaitAsync();
-
-            try
-            {
-                await WriteUniqueLinesToFile(lines, outputFilePath);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            await WriteUniqueLinesToFile(lines, outputFilePath);
         }
-
-        private async Task WriteUniqueLinesToFile(List<string> lines, string outputFilePath)
+        finally
         {
-            using (StreamWriter writer = new StreamWriter(outputFilePath, append: true))
+            _semaphore.Release();
+        }
+    }
+
+    private async Task WriteUniqueLinesToFile(List<string> lines, string outputFilePath)
+    {
+        using (StreamWriter writer = new StreamWriter(outputFilePath, append: true))
+        {
+            foreach (var line in lines)
             {
-                foreach (var line in lines)
+                if (!_filter.Contains(line))
                 {
-                    if (!_bloomFilter.Contains(line))
-                    {
-                        _bloomFilter.Add(line);
-                        await writer.WriteLineAsync(line);
-                    }
+                    _filter.Add(line);
+                    await writer.WriteLineAsync(line);
                 }
             }
         }

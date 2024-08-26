@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using LearnAsync.Filters;
+using System.Diagnostics;
 
 namespace LearnAsync;
 
@@ -9,7 +10,8 @@ public class FileProcessor
     private readonly PerformanceMonitor _performanceMonitor;
     private readonly string _tempDirectory;
 
-    public FileProcessor(FileReader fileReader, ChunkProcessor chunkProcessor, PerformanceMonitor performanceMonitor, string tempDirectory)
+
+    public FileProcessor(FileReader fileReader, ChunkProcessor chunkProcessor, PerformanceMonitor performanceMonitor,  string tempDirectory)
     {
         _fileReader = fileReader;
         _chunkProcessor = chunkProcessor;

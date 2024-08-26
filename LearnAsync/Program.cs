@@ -1,4 +1,5 @@
-﻿using LearnAsync.HashAlgorithm;
+﻿using LearnAsync.Filters;
+using LearnAsync.HashAlgorithm;
 
 namespace LearnAsync
 {
@@ -12,9 +13,10 @@ namespace LearnAsync
 
             IHashAlgorithm murmurHashAlgorithm = new MurmurHashAlgorithm();
             FileReader fileReader = new FileReader(murmurHashAlgorithm);
-            ChunkProcessor chunkProcessor = new ChunkProcessor();
+            IFilter<string> bloomFilter = new BloomFilterAdapter(10000000, 0.01);
+            ChunkProcessor chunkProcessor = new ChunkProcessor(bloomFilter);
             PerformanceMonitor performanceMonitor = new PerformanceMonitor();
-
+            await performanceMonitor.ValidateOutput(outputFilePath);
             string tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), nameof(tempDirectory));
 
             FileProcessor fileProcessor = new FileProcessor(fileReader, chunkProcessor, performanceMonitor, tempDirectory);
